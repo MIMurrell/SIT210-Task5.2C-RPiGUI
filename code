@@ -1,0 +1,74 @@
+#Title: Three LED Switch GUI
+#Author: Matthew Murrell
+#Date: 19/04/2022
+#Created for SIT210 Task 5.2C
+
+### LIBRARIES ###
+from tkinter import *
+import tkinter.font
+import RPi.GPIO as GPIO
+
+#### PIN DEFINITIONS ###
+RED_PIN = 11
+GREEN_PIN = 13
+BLUE_PIN = 15
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(RED_PIN, GPIO.OUT)
+GPIO.setup(GREEN_PIN, GPIO.OUT)
+GPIO.setup(BLUE_PIN, GPIO.OUT)
+
+### GUI DEFINITIONS ###
+win = Tk()
+win.title=("Three LED Switch")
+winFont = tkinter.font.Font(family = "Helvetica", size = 13, weight = "bold")
+
+### EVENT FUNCTIONS ###
+#Turns off all three of the LEDs
+def lightsOut():
+    GPIO.output(RED_PIN, GPIO.LOW)
+    GPIO.output(GREEN_PIN, GPIO.LOW)
+    GPIO.output(BLUE_PIN, GPIO.LOW)
+
+#Changes the Active LED to the one selected in selLED
+def changeLED():
+    lightsOut()
+    if selLED.get() != 0: #No light is turned on if selLED is equal to 0
+        GPIO.output(selLED.get(), GPIO.HIGH)
+
+#Turns off all of the LEDs, cleans up GPIO and closes the window
+def close():
+    lightsOut()
+    GPIO.cleanup()
+    win.destroy()
+
+### WIDGETS ###
+#The variable used to track which LED should be turned on. 0 (off) by default
+selLED = IntVar()
+selLED.set(0)
+
+#The radio button that turns off all LEDs when selected.
+offRadio = Radiobutton(win, text="Off", variable=selLED, value=0, command=changeLED, width=10, anchor="w", font = winFont)
+offRadio.grid(row=0, column=0)
+
+#The radio button that turns on only the red LED when selected
+redRadio = Radiobutton(win, text="Red", variable=selLED, value=RED_PIN, command=changeLED, activebackground="red", width=10, anchor="w", font = winFont)
+redRadio.grid(row=1, column=0)
+
+#The radio button that turns on only the green LED when selected
+greenRadio = Radiobutton(win, text="Green", variable=selLED, value=GREEN_PIN, command=changeLED, activebackground="green", width=10, anchor="w", font = winFont)
+greenRadio.grid(row=2, column=0)
+
+#The radio button that turns on only the blue LED when selected
+blueRadio = Radiobutton(win, text="Blue", variable=selLED, value=BLUE_PIN, command=changeLED, activebackground="blue", width=10, anchor="w", font = winFont)
+blueRadio.grid(row=3, column=0)
+
+#The button that turns off and cleans up the program when clicked.
+exitButton = Button(win, text = "Exit", font = winFont, command = close, height = 1, width = 10)
+exitButton.grid(row=4, column=0)
+
+#Calls the close function when the window is closed
+win.protocol("WM_DELETE_WINDOW", close)
+
+#The main loop of the GUI
+win.mainloop()
